@@ -28,8 +28,9 @@ import Header from "../components/Header";
 export default function PayScreen() {
   const { isConnected, open, provider } = useWalletConnectModal();
   const [amount, setAmount] = useState<number | null>();
-  const [showSplash, setShowSplash] = useState(true);
   const [date, setDate] = useState<Date>(new Date());
+  const [payAddress, setPayAddress] = useState<string>("");
+  const [showSplash, setShowSplash] = useState(true);
   const [mode, setMode] = useState<"date" | "time">("date");
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
@@ -69,6 +70,11 @@ export default function PayScreen() {
     { iterations: 5 }
   );
 
+  const loadingRotation = shakeAnimationValue.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ["-45deg", "45deg"],
+  });
+
   useEffect(() => {
     shakingAnimation.start();
 
@@ -82,11 +88,6 @@ export default function PayScreen() {
       shakingAnimation.stop();
     };
   }, []);
-
-  const loadingRotation = shakeAnimationValue.interpolate({
-    inputRange: [-1, 1],
-    outputRange: ["-45deg", "45deg"],
-  });
 
   if (showSplash) {
     return (
@@ -150,6 +151,13 @@ export default function PayScreen() {
                 placeholder="DAI amount"
                 keyboardType="numeric"
               />
+              <TextInput
+                style={styles.input}
+                onChangeText={(address) => setPayAddress(address)}
+                value={payAddress?.toString()}
+                placeholder="Pay to address"
+                keyboardType="numeric"
+              />
               <TouchableOpacity
                 style={styles.cardButton}
                 onPress={isConnected ? handleSubmit : handleWalletDisconnect}
@@ -159,6 +167,10 @@ export default function PayScreen() {
                 </Text>
               </TouchableOpacity>
               <View style={styles.stakeInfoBox}>
+                <View style={styles.stakeInfo}>
+                  <Text>Current APY</Text>
+                  <Text style={styles.apy}>3.9%</Text>
+                </View>
                 <View style={styles.stakeInfo}>
                   <Text>You will recieve</Text>
                   <Text>0 sDAI</Text>
@@ -229,14 +241,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   stakeTitle: {
-    fontWeight: "800",
+    fontWeight: "700",
     fontSize: 24,
   },
   stakeDescription: {
     marginHorizontal: 30,
     textAlign: "center",
     fontWeight: "500",
-    paddingVertical: 15,
+    paddingVertical: 20,
   },
   card: {
     alignSelf: "stretch",
@@ -269,5 +281,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  apy: {
+    fontWeight: "700",
+    color: "#fcaf00",
   },
 });
