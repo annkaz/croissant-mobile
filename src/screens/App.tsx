@@ -1,6 +1,5 @@
 import {
   Animated,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -23,16 +22,36 @@ import { truncateAddress } from "../utils/HelperUtils";
 import { useEffect, useRef, useState } from "react";
 import logo from "../assets/CroissantNouns.png";
 import loadingLogo from "../assets/CroissantLoading.png";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 export default function App() {
   const { isConnected, open, provider, address } = useWalletConnectModal();
   const [amount, setAmount] = useState<number | null>();
-  const [days, setDays] = useState<number | null>();
+  const [showSplash, setShowSplash] = useState(true);
+  const [date, setDate] = useState<Date>(new Date());
+  const [mode, setMode] = useState<"date" | "time">("date");
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+
   const scaleValue = useRef(new Animated.Value(1)).current;
   const rotateValue = useRef(new Animated.Value(0)).current;
-  const [showSplash, setShowSplash] = useState(true);
-
   const shakeAnimationValue = useRef(new Animated.Value(0)).current;
+
+  const onDateChange = (event: DateTimePickerEvent, newDate?: Date) => {
+    const currentDate = newDate || date;
+    setShowDatePicker(Platform.OS === "ios");
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode: "date" | "time") => {
+    setShowDatePicker(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
 
   const shakingAnimation = Animated.loop(
     Animated.sequence([
@@ -61,7 +80,7 @@ export default function App() {
     const timer = setTimeout(() => {
       shakingAnimation.stop();
       setShowSplash(false);
-    }, 2000); // 2 seconds
+    }, 2000);
 
     return () => {
       clearTimeout(timer);
@@ -122,9 +141,9 @@ export default function App() {
   };
 
   const handleSubmit = () => {
-    console.log("submitting val", { amount, days });
+    console.log("submitting val", { amount, date });
     setAmount(null);
-    setDays(null);
+    setDate(new Date());
     Keyboard.dismiss;
   };
 
@@ -162,6 +181,17 @@ export default function App() {
               Stake DAI and receive sDAI while staking
             </Text>
             <View style={styles.card}>
+              <View style={styles.datePicker}>
+                <Text>Pick the date:</Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode={"date"}
+                  is24Hour={true}
+                  display="default"
+                  onChange={onDateChange}
+                />
+              </View>
               <TextInput
                 style={styles.input}
                 onChangeText={(newAmount) =>
@@ -169,15 +199,6 @@ export default function App() {
                 }
                 value={amount?.toString()}
                 placeholder="DAI amount"
-                keyboardType="numeric"
-              />
-              <TextInput
-                style={styles.input}
-                onChangeText={(newDays) =>
-                  setDays(newDays === "" ? undefined : Number(newDays))
-                }
-                value={days?.toString()}
-                placeholder="Days"
                 keyboardType="numeric"
               />
               <TouchableOpacity
@@ -269,7 +290,7 @@ const styles = StyleSheet.create({
   },
   stakeDescription: {
     fontWeight: "500",
-    paddingVertical: 10,
+    paddingVertical: 15,
   },
   card: {
     alignSelf: "stretch",
@@ -297,5 +318,10 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  datePicker: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
