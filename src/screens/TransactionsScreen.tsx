@@ -11,6 +11,7 @@ import { useState } from "react";
 import { truncateAddress } from "../utils/HelperUtils";
 import TransactionModal from "../components/TxModal";
 import { MONTH_NAMES } from "../constants/Config";
+import React from "react";
 
 const DATA = [
   {

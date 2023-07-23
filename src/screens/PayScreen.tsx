@@ -24,6 +24,8 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import Header from "../components/Header";
+import React from "react";
+import { calculateSDaiNeeded } from "../utils/HelperUtils";
 
 export default function PayScreen() {
   const { isConnected, open, provider } = useWalletConnectModal();
@@ -33,6 +35,7 @@ export default function PayScreen() {
   const [showSplash, setShowSplash] = useState(true);
   const [mode, setMode] = useState<"date" | "time">("date");
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [sDaiReceived, setSDaiReceived] = useState(0);
 
   const shakeAnimationValue = useRef(new Animated.Value(0)).current;
 
@@ -146,9 +149,14 @@ export default function PayScreen() {
               </View>
               <TextInput
                 style={styles.input}
-                onChangeText={(newAmount) =>
-                  setAmount(newAmount === "" ? undefined : Number(newAmount))
-                }
+                onChangeText={(newAmount) => {
+                  setAmount(newAmount === "" ? undefined : Number(newAmount));
+                  if (newAmount !== "") {
+                    const currentDSR = 0.03; // replace this with the current DSR
+                    const newSDaiReceived = calculateSDaiNeeded(Number(newAmount), date, currentDSR);
+                    setSDaiReceived(newSDaiReceived);
+                  }
+                }}
                 value={amount?.toString()}
                 placeholder="DAI amount"
                 keyboardType="numeric"
@@ -178,8 +186,8 @@ export default function PayScreen() {
                   <Text style={styles.apy}>3.9%</Text>
                 </View>
                 <View style={styles.stakeInfo}>
-                  <Text>You will recieve</Text>
-                  <Text>0 sDAI</Text>
+                  <Text>You will receive</Text>
+                  <Text>{sDaiReceived.toFixed(2)} sDAI</Text>
                 </View>
                 <View style={styles.stakeInfo}>
                   <Text>Exchange rate</Text>
