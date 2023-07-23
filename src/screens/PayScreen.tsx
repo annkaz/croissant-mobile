@@ -105,9 +105,10 @@ export default function PayScreen() {
   }
 
   const handleSubmit = () => {
-    console.log("submitting val", { amount, date });
+    console.log("submitting val", { amount, date, payAddress });
     setAmount(null);
     setDate(new Date());
+    setPayAddress("");
     Keyboard.dismiss;
   };
 
@@ -139,6 +140,7 @@ export default function PayScreen() {
                   mode={"date"}
                   is24Hour={true}
                   display="default"
+                  minimumDate={new Date()}
                   onChange={onDateChange}
                 />
               </View>
@@ -161,6 +163,10 @@ export default function PayScreen() {
               <TouchableOpacity
                 style={styles.cardButton}
                 onPress={isConnected ? handleSubmit : handleWalletDisconnect}
+                disabled={
+                  isConnected &&
+                  (Number(amount) <= 0 || payAddress.length === 0)
+                }
               >
                 <Text style={styles.text}>
                   {isConnected ? "Submit" : "Connect Wallet"}
@@ -200,6 +206,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffefd2",
   },
   container: {
     flex: 1,
