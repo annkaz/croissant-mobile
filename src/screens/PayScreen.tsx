@@ -18,12 +18,23 @@ import {
 import { setStringAsync } from "expo-clipboard";
 import { PROJECT_ID } from "@env";
 import { sessionParams, providerMetadata } from "../constants/Config";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import loadingLogo from "../assets/CroissantLoading.png";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import Header from "../components/Header";
+import { RequestModal } from "../components/RequestModal";
+import {
+  FormattedRpcError,
+  FormattedRpcResponse,
+  RpcRequestParams,
+} from "../types/methods";
+import { ethers } from "ethers";
+import { sendTransaction } from "../utils/MethodUtils";
+import { calculateSDaiNeeded } from "../utils/HelperUtils";
+
+const currentDSR = 3.49;
 
 export default function PayScreen() {
   const { isConnected, open, provider } = useWalletConnectModal();
@@ -33,6 +44,55 @@ export default function PayScreen() {
   const [showSplash, setShowSplash] = useState(true);
   const [mode, setMode] = useState<"date" | "time">("date");
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [rpcResponse, setRpcResponse] = useState<FormattedRpcResponse>();
+  const [rpcError, setRpcError] = useState<FormattedRpcError>();
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [depositAmount, setDepositAmount] = useState<number>();
+
+  const onModalClose = () => {
+    setModalVisible(false);
+    setLoading(false);
+    setRpcResponse(undefined);
+    setRpcError(undefined);
+  };
+
+  const web3Provider = useMemo(
+    () => (provider ? new ethers.providers.Web3Provider(provider) : undefined),
+    [provider]
+  );
+
+  const wrapRpcRequest =
+    (
+      method: string,
+      rpcRequest: ({
+        web3Provider,
+        method,
+        amount,
+      }: RpcRequestParams) => Promise<FormattedRpcResponse>
+    ) =>
+    async () => {
+      if (!web3Provider) return;
+
+      setRpcResponse(undefined);
+      setRpcError(undefined);
+      setModalVisible(true);
+      console.log("got here calling", method, rpcRequest);
+      try {
+        setLoading(true);
+        console.log("trying the req", method);
+        const result = await rpcRequest({ web3Provider, method, amount });
+        console.log("got rpcRequest res", result);
+        setRpcResponse(result);
+        setRpcError(undefined);
+      } catch (error: any) {
+        console.error("RPC request failed:", error);
+        setRpcResponse(undefined);
+        setRpcError({ method, error: error?.message });
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const shakeAnimationValue = useRef(new Animated.Value(0)).current;
 
@@ -76,6 +136,11 @@ export default function PayScreen() {
   });
 
   useEffect(() => {
+    let num = calculateSDaiNeeded(amount ?? 0, date, 3.49);
+    setDepositAmount(num);
+  }, [amount, date]);
+
+  useEffect(() => {
     shakingAnimation.start();
 
     const timer = setTimeout(() => {
@@ -105,11 +170,13 @@ export default function PayScreen() {
   }
 
   const handleSubmit = () => {
-    console.log("submitting val", { amount, date, payAddress });
     setAmount(null);
     setDate(new Date());
     setPayAddress("");
     Keyboard.dismiss;
+    const cb = wrapRpcRequest("eth_sendTransaction", sendTransaction);
+    //@ts-ignore
+    cb(web3Provider);
   };
 
   const onCopyClipboard = async (value: string) => {
@@ -175,11 +242,11 @@ export default function PayScreen() {
               <View style={styles.stakeInfoBox}>
                 <View style={styles.stakeInfo}>
                   <Text>Current APY</Text>
-                  <Text style={styles.apy}>3.9%</Text>
+                  <Text style={styles.apy}>3.49%</Text>
                 </View>
                 <View style={styles.stakeInfo}>
-                  <Text>You will recieve</Text>
-                  <Text>0 sDAI</Text>
+                  <Text>You will deposit</Text>
+                  <Text>{`${depositAmount} sDAI`}</Text>
                 </View>
                 <View style={styles.stakeInfo}>
                   <Text>Exchange rate</Text>
@@ -194,6 +261,13 @@ export default function PayScreen() {
             onCopyClipboard={onCopyClipboard}
             providerMetadata={providerMetadata}
             sessionParams={sessionParams}
+          />
+          <RequestModal
+            rpcResponse={rpcResponse}
+            rpcError={rpcError}
+            isLoading={loading}
+            isVisible={modalVisible}
+            onClose={onModalClose}
           />
         </KeyboardAvoidingView>
       </SafeAreaView>

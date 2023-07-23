@@ -15,7 +15,6 @@ export default function TransactionModal({
 }: TxModalProps) {
   let isExecuted = item?.executionDate.getTime() < Date.now();
   const getDate = (date: Date) => {
-    console.log("getting date", date);
     if (!date) return "";
     return `${date?.getDate()} ${MONTH_NAMES[date?.getMonth()]}`;
   };

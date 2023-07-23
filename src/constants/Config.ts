@@ -22,7 +22,7 @@ export const sessionParams = {
         "eth_call",
         "eth_getTransactionReceipt",
       ],
-      chains: ["eip155:11155111"],
+      chains: ["eip155:5"],
       events: ["chainChanged", "accountsChanged"],
       rpcMap: {},
     },
