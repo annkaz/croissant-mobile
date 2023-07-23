@@ -42,13 +42,12 @@ export default function PayScreen() {
   const [date, setDate] = useState<Date>(new Date());
   const [payAddress, setPayAddress] = useState<string>("");
   const [showSplash, setShowSplash] = useState(true);
-  const [mode, setMode] = useState<"date" | "time">("date");
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [rpcResponse, setRpcResponse] = useState<FormattedRpcResponse>();
   const [rpcError, setRpcError] = useState<FormattedRpcError>();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [depositAmount, setDepositAmount] = useState<number>();
+  const [depositAmount, setDepositAmount] = useState<number | null>();
 
   const onModalClose = () => {
     setModalVisible(false);
@@ -69,6 +68,7 @@ export default function PayScreen() {
         web3Provider,
         method,
         amount,
+        toAddress,
       }: RpcRequestParams) => Promise<FormattedRpcResponse>
     ) =>
     async () => {
@@ -77,12 +77,14 @@ export default function PayScreen() {
       setRpcResponse(undefined);
       setRpcError(undefined);
       setModalVisible(true);
-      console.log("got here calling", method, rpcRequest);
       try {
         setLoading(true);
-        console.log("trying the req", method);
-        const result = await rpcRequest({ web3Provider, method, amount });
-        console.log("got rpcRequest res", result);
+        const result = await rpcRequest({
+          web3Provider,
+          method,
+          amount: depositAmount,
+          toAddress: payAddress,
+        });
         setRpcResponse(result);
         setRpcError(undefined);
       } catch (error: any) {
@@ -246,7 +248,7 @@ export default function PayScreen() {
                 </View>
                 <View style={styles.stakeInfo}>
                   <Text>You will deposit</Text>
-                  <Text>{`${depositAmount} sDAI`}</Text>
+                  <Text>{`${depositAmount} DAI`}</Text>
                 </View>
                 <View style={styles.stakeInfo}>
                   <Text>Exchange rate</Text>
