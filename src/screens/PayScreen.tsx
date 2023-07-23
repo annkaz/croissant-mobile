@@ -53,17 +53,17 @@ export default function PayScreen() {
     Animated.sequence([
       Animated.timing(shakeAnimationValue, {
         toValue: -1,
-        duration: 100,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(shakeAnimationValue, {
         toValue: 1,
-        duration: 200,
+        duration: 300,
         useNativeDriver: true,
       }),
       Animated.timing(shakeAnimationValue, {
         toValue: 0,
-        duration: 100,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]),

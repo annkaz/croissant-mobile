@@ -15,6 +15,8 @@ export default function TransactionModal({
 }: TxModalProps) {
   let isExecuted = item?.executionDate.getTime() < Date.now();
   const getDate = (date: Date) => {
+    console.log("getting date", date);
+    if (!date) return "";
     return `${date?.getDate()} ${MONTH_NAMES[date?.getMonth()]}`;
   };
   return (
@@ -75,6 +77,16 @@ export default function TransactionModal({
               <View style={styles.row}>
                 <Text>{getDate(item?.postedDate)}</Text>
                 <Text>{getDate(item?.executionDate)}</Text>
+              </View>
+              <Separator />
+              <View style={styles.row}>
+                <Text>Current amount</Text>
+                <Text>Target amount</Text>
+              </View>
+
+              <View style={styles.row}>
+                <Text>{item?.currentValue}</Text>
+                <Text>{item?.targetValue}</Text>
               </View>
             </View>
           </View>
