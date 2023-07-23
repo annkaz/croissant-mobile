@@ -9,51 +9,54 @@ import {
 import Header from "../components/Header";
 import { useState } from "react";
 import { truncateAddress } from "../utils/HelperUtils";
-
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+import TransactionModal from "../components/TxModal";
+import { MONTH_NAMES } from "../constants/Config";
 
 const DATA = [
   {
+    fromAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     toAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     currentValue: 984,
     targetValue: 1000,
+    postedDate: new Date(
+      "Sun Jun 7 2023 01:12:24 GMT+0200 (Central European Summer Time)"
+    ),
     executionDate: new Date(
       "Sun Jul 31 2023 01:12:24 GMT+0200 (Central European Summer Time)"
     ),
   },
   {
+    fromAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     toAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     currentValue: 984,
     targetValue: 1000,
+    postedDate: new Date(
+      "Sun Jun 25 2023 01:12:24 GMT+0200 (Central European Summer Time)"
+    ),
     executionDate: new Date(
       "Sun Jul 29 2023 01:12:24 GMT+0200 (Central European Summer Time)"
     ),
   },
   {
+    fromAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     toAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     currentValue: 984,
     targetValue: 2500,
+    postedDate: new Date(
+      "Sun Jun 2 2023 01:12:24 GMT+0200 (Central European Summer Time)"
+    ),
     executionDate: new Date(
       "Sun Jul 25 2023 01:12:24 GMT+0200 (Central European Summer Time)"
     ),
   },
   {
+    fromAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     toAddress: truncateAddress("0x346cEf208dD81380063B8A095a8cd94DDB65826c"),
     currentValue: 3000,
     targetValue: 3000,
+    postedDate: new Date(
+      "Sun Jun 5 2023 01:12:24 GMT+0200 (Central European Summer Time)"
+    ),
     executionDate: new Date(
       "Sun Jul 21 2023 01:12:24 GMT+0200 (Central European Summer Time)"
     ),
@@ -110,6 +113,11 @@ export default function TransactionScreen() {
             );
           }}
         ></FlatList>
+        <TransactionModal
+          modalOpen={modalOpen}
+          closeTransactionModal={closeTransactionModal}
+          item={selectedItem}
+        />
       </View>
     </SafeAreaView>
   );
