@@ -5,6 +5,7 @@ export const sendTransaction = async ({
   web3Provider,
   method,
   amount,
+  toAddress,
 }: RpcRequestParams): Promise<FormattedRpcResponse> => {
   if (!web3Provider) {
     throw new Error("web3Provider not connected");
@@ -45,7 +46,6 @@ export const sendTransaction = async ({
     ],
     web3Provider
   );
-  const toAddress = "0x1C20569950B926d4aaFCa17E55F07fE9CaF32827";
 
   const parsedAmount = ethers.utils.parseUnits((amount ?? 0).toString(), 18);
 
