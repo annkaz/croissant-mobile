@@ -14,15 +14,13 @@ export function calculateSDaiNeeded(
   paymentDate: Date,
   currentDSR: number
 ): number {
+  const annualInterestRate = currentDSR / 100;
   const currentDate = new Date();
-
-  const oneDay = 24 * 60 * 60 * 1000;
-  const daysUntilPayment = Math.round(
-    Math.abs((currentDate.getTime() - paymentDate.getTime()) / oneDay)
-  );
+  const differenceInTime = paymentDate.getTime() - currentDate.getTime();
+  const differenceInYears = differenceInTime / (1000 * 3600 * 24 * 365.25);
 
   const sDaiNeeded =
-    paymentAmount / (1 + (currentDSR * daysUntilPayment) / 365);
+    paymentAmount / Math.pow(1 + annualInterestRate, differenceInYears);
 
-  return sDaiNeeded;
+  return parseFloat(sDaiNeeded.toFixed(4));
 }

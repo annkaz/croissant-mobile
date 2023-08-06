@@ -22,4 +22,5 @@ export interface RpcRequestParams {
   method: string;
   web3Provider: ethers.providers.Web3Provider;
   amount: number | null | undefined;
+  toAddress: string;
 }

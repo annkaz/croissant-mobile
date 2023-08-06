@@ -34,7 +34,7 @@ import { ethers } from "ethers";
 import { sendTransaction } from "../utils/MethodUtils";
 import { calculateSDaiNeeded } from "../utils/HelperUtils";
 
-const currentDSR = 3.49;
+const currentDSR = 3.19;
 
 export default function PayScreen() {
   const { isConnected, open, provider } = useWalletConnectModal();
@@ -42,7 +42,6 @@ export default function PayScreen() {
   const [date, setDate] = useState<Date>(new Date());
   const [payAddress, setPayAddress] = useState<string>("");
   const [showSplash, setShowSplash] = useState(true);
-  const [mode, setMode] = useState<"date" | "time">("date");
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [rpcResponse, setRpcResponse] = useState<FormattedRpcResponse>();
   const [rpcError, setRpcError] = useState<FormattedRpcError>();
@@ -81,7 +80,12 @@ export default function PayScreen() {
       try {
         setLoading(true);
         console.log("trying the req", method);
-        const result = await rpcRequest({ web3Provider, method, amount });
+        const result = await rpcRequest({
+          web3Provider,
+          method,
+          amount,
+          toAddress: payAddress,
+        });
         console.log("got rpcRequest res", result);
         setRpcResponse(result);
         setRpcError(undefined);
@@ -113,17 +117,17 @@ export default function PayScreen() {
     Animated.sequence([
       Animated.timing(shakeAnimationValue, {
         toValue: -1,
-        duration: 400,
+        duration: 500,
         useNativeDriver: true,
       }),
       Animated.timing(shakeAnimationValue, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(shakeAnimationValue, {
         toValue: 0,
-        duration: 400,
+        duration: 500,
         useNativeDriver: true,
       }),
     ]),
@@ -136,8 +140,8 @@ export default function PayScreen() {
   });
 
   useEffect(() => {
-    let num = calculateSDaiNeeded(amount ?? 0, date, 3.49);
-    setDepositAmount(num);
+    let currDepositAmount = calculateSDaiNeeded(amount ?? 0, date, currentDSR);
+    setDepositAmount(currDepositAmount);
   }, [amount, date]);
 
   useEffect(() => {
@@ -242,7 +246,7 @@ export default function PayScreen() {
               <View style={styles.stakeInfoBox}>
                 <View style={styles.stakeInfo}>
                   <Text>Current APY</Text>
-                  <Text style={styles.apy}>3.49%</Text>
+                  <Text style={styles.apy}>{`${currentDSR}%`}</Text>
                 </View>
                 <View style={styles.stakeInfo}>
                   <Text>You will deposit</Text>
